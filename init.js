@@ -51,18 +51,18 @@ function clock() {
 
 function calculateMovement() {
   if (keyState.forward) {
-    playerX += Math.sin(playerYaw) / 10;
-    playerZ += Math.cos(playerYaw) / 10;
+    playerX += Math.sin(playerYaw) / 8;
+    playerZ += Math.cos(playerYaw) / 8;
   } else if (keyState.backward) {
-    playerX -= Math.sin(playerYaw) / 10;
-    playerZ -= Math.cos(playerYaw) / 10;
+    playerX -= Math.sin(playerYaw) / 8;
+    playerZ -= Math.cos(playerYaw) / 8;
   }
 
   if (keyState.strafeLeft) {
-    playerX += Math.sin(playerYaw - Math.PI / 2) / 10;
-    playerZ += Math.cos(playerYaw - Math.PI / 2) / 10;
+    playerX += Math.sin(playerYaw - Math.PI / 2) / 8;
+    playerZ += Math.cos(playerYaw - Math.PI / 2) / 8;
   } else if (keyState.strafeRight) {
-    playerX -= Math.sin(playerYaw - Math.PI / 2) / 10;
-    playerZ -= Math.cos(playerYaw - Math.PI / 2) / 10;
+    playerX -= Math.sin(playerYaw - Math.PI / 2) / 8;
+    playerZ -= Math.cos(playerYaw - Math.PI / 2) / 8;
   }
 }

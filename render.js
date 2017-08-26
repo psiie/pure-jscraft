@@ -6,9 +6,15 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
   for (let x = 0; x < w; x++) {
     for (let y = 0; y < h; y++) {
       function setPixelColor() {
+        // 144 238 255
         let r = ((col >> 16) & 0xff) * brightness * fogDistance / (255 * 255);
         let g = ((col >> 8) & 0xff) * brightness * fogDistance / (255 * 255);
         let b = (col & 0xff) * brightness * fogDistance / (255 * 255);
+
+        // blue fog effect
+        r += (1 - fogDistance / 210) * 144;
+        g += (1 - fogDistance / 210) * 238;
+        b += (1 - fogDistance / 210) * 255;
 
         // Sky color 144 238 255
         pixels.data[(x + y * w) * 4 + 0] = r || 144;
@@ -70,12 +76,14 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
 
         // While we havn't hit the render limit, keep rendering
         while (distance < closest) {
-          // var tex = map[(zp & 63) << 12 | (yp & 63) << 6 | (xp & 63)];
           let texture = map[zp & 63][yp & 63][xp & 63];
+
+          // Only render the 64x64x64 cube. Dont loop
           if (zp > 64 || yp > 64 || xp > 64 || zp < 1 || yp < 1 || xp < 1) {
             texture = 0;
           }
 
+          // if not an air block
           if (texture > 0) {
             let u = ((xp + zp) * 16) & 15;
             let v = ((yp * 16) & 15) + 16;
@@ -90,8 +98,8 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
             const cc = texmap[u + v * 16 + texture * 256 * 3];
             if (cc > 0) {
               col = cc;
-              // fogDistance = 255 - ((distance / 32 * 255) | 0);
-              fogDistance = 255 - ((distance / 32 * 0) | 0);
+              fogDistance = 255 - ((distance / 32 * 255) | 0);
+              // fogDistance = 255 - ((distance / 32 * 0) | 0);
               brightness = 255 * (255 - (face + 2) % 3 * 50) / 255;
               closest = distance;
             }
