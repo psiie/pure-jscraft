@@ -39,7 +39,6 @@ let playerYaw = Math.sin(0) + Math.PI / 2; // 7.855 // 6.2842036732 sin
 let playerPitch = Math.cos(4.6);
 
 // camera coords
-// const playerX = 32.5 + Date.now() % 10000 / 10000 * 64;
 let playerX = 32.5;
 let playerY = 31.5;
 let playerZ = 32.5;
@@ -52,14 +51,18 @@ function clock() {
 
 function calculateMovement() {
   if (keyState.forward) {
-    playerX += 0.3;
+    playerX += Math.sin(playerYaw) / 10;
+    playerZ += Math.cos(playerYaw) / 10;
   } else if (keyState.backward) {
-    playerX -= 0.3;
+    playerX -= Math.sin(playerYaw) / 10;
+    playerZ -= Math.cos(playerYaw) / 10;
   }
 
   if (keyState.strafeLeft) {
-    playerZ += 0.15;
+    playerX += Math.sin(playerYaw - Math.PI / 2) / 10;
+    playerZ += Math.cos(playerYaw - Math.PI / 2) / 10;
   } else if (keyState.strafeRight) {
-    playerZ -= 0.15;
+    playerX -= Math.sin(playerYaw - Math.PI / 2) / 10;
+    playerZ -= Math.cos(playerYaw - Math.PI / 2) / 10;
   }
 }

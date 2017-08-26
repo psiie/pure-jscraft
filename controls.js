@@ -45,7 +45,8 @@ const keyState = {
 };
 
 document.addEventListener("keydown", event => {
-  console.log(playerX | 0, playerY | 0, playerZ | 0);
+  // console.log(playerX | 0, playerY | 0, playerZ | 0);
+  console.log(Math.sin(playerYaw));
   switch (event.keyCode) {
     case 65:
       keyState.strafeLeft = true;

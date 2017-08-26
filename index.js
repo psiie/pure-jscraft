@@ -16,7 +16,7 @@ var map = (() => {
     dim3[i] = dim2.slice();
   return dim3.slice();
 })();
-// var map = new Array(64 * 64 * 64);
+
 var texmap = new Array(16 * 16 * 3 * 16);
 
 init();
