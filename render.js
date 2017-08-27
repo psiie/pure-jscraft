@@ -2,6 +2,17 @@
 |       Render Engine      |
 ------------------------- */
 
+let debounceLogging = false;
+function debounceLog(msg) {
+  if (debounceLogging === false) {
+    debounceLogging = true;
+    console.log(msg);
+    setTimeout(function() {
+      debounceLogging = false;
+    }, 500);
+  }
+}
+
 function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
   for (let x = 0; x < w; x++) {
     for (let y = 0; y < h; y++) {
@@ -29,13 +40,14 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
       const xSin = Math.sin(playerYaw);
 
       // pixel maths
-      const __yFace = (y - h / 2) / h;
-      const __zFace = 1;
-      const ___xFace = (x - w / 2) / h;
-      const ___zFace = __zFace * yCos + __yFace * ySin;
-      const _yFace = __yFace * yCos - __zFace * ySin;
-      const _xFace = ___xFace * xCos + ___zFace * xSin;
-      const _zFace = ___zFace * xCos - ___xFace * xSin;
+      const worldyd = (y - h / 2) / h;
+      const worldzd = 1;
+      const worldxd = (x - w / 2) / h;
+      const worldyd_ = worldzd * yCos + worldyd * ySin;
+
+      const rotxd = worldyd * yCos - worldzd * ySin;
+      const rotyd = worldxd * xCos + worldyd_ * xSin;
+      const rotzd = worldyd_ * xCos - worldxd * xSin;
 
       // declare variables. Initial states are simply for notes
       let col = 0;
@@ -43,44 +55,45 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
       let fogDistance = 0;
 
       // render distance
-      let closest = 32;
+      let renderDistance = 32;
 
-      // render each of the 3 visible faces
-      for (let face = 0; face < 3; face++) {
-        let dimentionLength = _xFace;
-        if (face == 1) dimentionLength = _yFace;
-        if (face == 2) dimentionLength = _zFace;
+      // Ray cast for each dimension
+      for (let dimension = 0; dimension < 3; dimension++) {
+        // rotyd === -0.5-1.5 . Straight forward 1.0
+        let dimLength = rotyd;
+        if (dimension == 1) dimLength = rotxd;
+        if (dimension == 2) dimLength = rotzd;
 
-        const ll =
-          1 / (dimentionLength < 0 ? -dimentionLength : dimentionLength);
-        const xFace = _xFace * ll;
-        const yFace = _yFace * ll;
-        const zFace = _zFace * ll;
+        // 11 === 2-0.65
+        const ll = 1 / Math.abs(dimLength);
+        const xd = rotyd * ll; // 1
+        const yz = rotxd * ll; // 7
+        const zd = rotzd * ll; // -pi-pi
 
+        // initial is a block offset. where in the block the person is. 0-1
         let initial = playerX - (playerX | 0);
-        if (face == 1) initial = playerY - (playerY | 0);
-        if (face == 2) initial = playerZ - (playerZ | 0);
-        if (dimentionLength > 0) initial = 1 - initial;
+        if (dimension == 1) initial = playerY - (playerY | 0);
+        if (dimension == 2) initial = playerZ - (playerZ | 0);
+        if (dimLength > 0) initial = 1 - initial;
 
-        let distance = ll * initial;
+        /* where to start/stop rendering. Faces offset when wrong */
+        let xp = playerX + xd * initial;
+        let yp = playerY + yz * initial;
+        let zp = playerZ + zd * initial;
 
-        let xp = playerX + xFace * initial;
-        let yp = playerY + yFace * initial;
-        let zp = playerZ + zFace * initial;
-
-        if (dimentionLength < 0) {
-          if (face === 0) xp--;
-          if (face === 1) yp--;
-          if (face === 2) zp--;
+        // faces go missing in certain cardinal directions when not subtracted
+        if (dimLength < 0) {
+          if (dimension === 0) xp--;
+          if (dimension === 1) yp--;
+          if (dimension === 2) zp--;
         }
 
-        // While we havn't hit the render limit, keep rendering
-        while (distance < closest) {
-          let texture = map[zp & 63][yp & 63][xp & 63];
-
-          // Only render the 64x64x64 cube. Dont loop
-          if (zp > 64 || yp > 64 || xp > 64 || zp < 1 || yp < 1 || xp < 1) {
-            texture = 0;
+        // the ray
+        let distance = ll * initial; // distance === 0-2
+        while (distance < renderDistance) {
+          let texture = map[xp & 63][yp & 63][zp & 63];
+          if (zp > 64 || yp > 64 || xp > 64 || zp < 0 || yp < 0 || xp < 0) {
+            texture = 0; // Only render the 64x64x64 cube. Dont loop
           }
 
           // if not an air block
@@ -88,11 +101,11 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
             let u = ((xp + zp) * 16) & 15;
             let v = ((yp * 16) & 15) + 16;
 
-            // if top face of block
-            if (face == 1) {
+            // if top dimension of block
+            if (dimension == 1) {
               u = (xp * 16) & 15;
               v = (zp * 16) & 15;
-              if (yFace < 0) v += 32;
+              if (yz < 0) v += 32;
             }
 
             const cc = texmap[u + v * 16 + texture * 256 * 3];
@@ -100,13 +113,13 @@ function renderMinecraft(playerX, playerY, playerZ, playerYaw, playerPitch) {
               col = cc;
               fogDistance = 255 - ((distance / 32 * 255) | 0);
               // fogDistance = 255 - ((distance / 32 * 0) | 0);
-              brightness = 255 * (255 - (face + 2) % 3 * 50) / 255;
-              closest = distance;
+              brightness = 255 * (255 - (dimension + 2) % 3 * 50) / 255;
+              renderDistance = distance;
             }
           }
-          xp += xFace;
-          yp += yFace;
-          zp += zFace;
+          xp += xd;
+          yp += yz;
+          zp += zd;
           distance += ll;
         }
       }

@@ -10,10 +10,14 @@ function init() {
     for (worldY = 0; worldY < 64; worldY++) {
       for (worldZ = 0; worldZ < 64; worldZ++) {
         if (worldY === 36) map[worldX][worldY][worldZ] = 1;
-        if (worldY === 35 && worldX === 20) map[worldX][worldY][worldZ] = 7;
+        // if (worldY === 35 && worldX === 20) map[worldX][worldY][worldZ] = 7;
       }
     }
   }
+  map[35][35][32] = 2;
+  map[35][34][32] = 2;
+  map[35][33][32] = 2;
+  map[35][32][32] = 1;
 
   const printMap = function() {
     for (worldX = 0; worldX < 64; worldX++) {
@@ -51,11 +55,13 @@ function clock() {
 
 function calculateMovement() {
   if (keyState.forward) {
-    playerX += Math.sin(playerYaw) / 8;
-    playerZ += Math.cos(playerYaw) / 8;
+    playerX += Math.sin(playerYaw) * Math.cos(playerPitch) / 8;
+    playerY -= Math.sin(playerPitch) / 8;
+    playerZ += Math.cos(playerYaw) * Math.cos(playerPitch) / 8;
   } else if (keyState.backward) {
-    playerX -= Math.sin(playerYaw) / 8;
-    playerZ -= Math.cos(playerYaw) / 8;
+    playerX -= Math.sin(playerYaw) * Math.cos(playerPitch) / 8;
+    playerY += Math.sin(playerPitch) / 8;
+    playerZ -= Math.cos(playerYaw) * Math.cos(playerPitch) / 8;
   }
 
   if (keyState.strafeLeft) {

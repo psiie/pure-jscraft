@@ -33,8 +33,8 @@ function moveCallback(event) {
 
   playerYaw = (playerYaw + movementX / 500) % 7.855;
   playerPitch = playerPitch - movementY / 1000;
-  if (playerPitch < -1.6) playerPitch = -1.6;
-  if (playerPitch > 1.6) playerPitch = 1.6;
+  if (playerPitch < -Math.PI / 2) playerPitch = -Math.PI / 2;
+  if (playerPitch > Math.PI / 2) playerPitch = Math.PI / 2;
 }
 
 const keyState = {
@@ -46,7 +46,12 @@ const keyState = {
 
 document.addEventListener("keydown", event => {
   // console.log(playerX | 0, playerY | 0, playerZ | 0);
-  console.log(Math.sin(playerYaw));
+  // console.log(
+  //   playerYaw,
+  //   Math.sin(playerYaw),
+  //   Math.cos(playerYaw),
+  //   Math.sin(playerPitch)
+  // );
   switch (event.keyCode) {
     case 65:
       keyState.strafeLeft = true;
@@ -79,3 +84,41 @@ document.addEventListener("keyup", event => {
       break;
   }
 });
+
+document.addEventListener("click", event => {
+  if (event.button === 0) {
+    // console.log(playerX, playerY, playerZ);
+    // console.log(Math.sin(playerPitch), Math.sin(playerYaw));
+
+    const findSelectedBlock = function() {
+      let rayX = playerX;
+      let rayY = playerY;
+      let rayZ = playerZ;
+      let rayPitch = playerPitch;
+      let rayYaw = playerYaw;
+      // console.log(rayPitch, rayYaw);
+      // console.log(rayX | 0, rayY | 0, rayZ | 0);
+      for (var i = 0; i < 100; i++) {
+        rayX += Math.sin(playerYaw) * Math.cos(playerPitch);
+        rayY -= Math.sin(playerPitch);
+        rayZ += Math.cos(playerYaw) * Math.cos(playerPitch);
+        // map[rayX | 0][rayY | 0][rayZ | 0] = 9;
+        // console.log(rayX, rayY, rayZ);
+        if (map[rayX | 0][rayY | 0][rayZ | 0] > 0) {
+          console.log("steps:", i);
+          let currBlock = map[rayX | 0][rayY | 0][rayZ | 0];
+          currBlock = (currBlock + 1) % 16;
+          map[rayX | 0][rayY | 0][rayZ | 0] = currBlock || 1;
+          break;
+        }
+      }
+      console.log(rayX | 0, rayY | 0, rayZ | 0);
+    };
+
+    findSelectedBlock();
+  }
+});
+
+// playerX += Math.sin(playerYaw) / 8;
+// playerY -= Math.sin(playerPitch) / 8;
+// playerZ += Math.cos(playerYaw) / 8;

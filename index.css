@@ -11,3 +11,13 @@ canvas, img {
 .hidden {
   display: none;
 }
+
+.crosshair {
+  background-color: red;
+  width: 5px;
+  height: 5px;
+  display: inline-block;
+  position: absolute;
+  top: 240px;
+  left: 320px;
+}
