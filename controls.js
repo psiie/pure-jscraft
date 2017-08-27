@@ -98,10 +98,10 @@ document.addEventListener("click", event => {
       let rayYaw = playerYaw;
       // console.log(rayPitch, rayYaw);
       // console.log(rayX | 0, rayY | 0, rayZ | 0);
-      for (var i = 0; i < 100; i++) {
-        rayX += Math.sin(playerYaw) * Math.cos(playerPitch);
-        rayY -= Math.sin(playerPitch);
-        rayZ += Math.cos(playerYaw) * Math.cos(playerPitch);
+      for (var i = 0; i < 6 * 1000; i++) {
+        rayX += Math.sin(playerYaw) * Math.cos(playerPitch) / 1000;
+        rayY -= Math.sin(playerPitch) / 1000;
+        rayZ += Math.cos(playerYaw) * Math.cos(playerPitch) / 1000;
         // map[rayX | 0][rayY | 0][rayZ | 0] = 9;
         // console.log(rayX, rayY, rayZ);
         if (map[rayX | 0][rayY | 0][rayZ | 0] > 0) {
