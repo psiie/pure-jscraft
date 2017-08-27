@@ -94,8 +94,8 @@ document.addEventListener("click", event => {
       let rayX = playerX;
       let rayY = playerY;
       let rayZ = playerZ;
-      let rayPitch = playerPitch;
-      let rayYaw = playerYaw;
+      // let rayPitch = playerPitch;
+      // let rayYaw = playerYaw;
       // console.log(rayPitch, rayYaw);
       // console.log(rayX | 0, rayY | 0, rayZ | 0);
       for (var i = 0; i < 6 * 1000; i++) {
