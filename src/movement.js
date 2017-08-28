@@ -25,7 +25,7 @@ module.exports = {
       player.z -= Math.cos(player.yaw - Math.PI / 2) / 8;
     }
   },
-  init: () => {
+  init: (player, map) => {
     function changeCallback(e) {
       var canvas = document.getElementById("game");
       const havePointer =
@@ -123,6 +123,7 @@ module.exports = {
     document.addEventListener("mozpointerlockchange", changeCallback, false);
     document.addEventListener("webkitpointerlockchange", changeCallback, false);
     document.getElementById("game").addEventListener("click", captureMouseCB);
+
     document.addEventListener("keydown", keyDownCB);
     document.addEventListener("keyup", keyUpCB);
     document.addEventListener("click", mouseClickCB);

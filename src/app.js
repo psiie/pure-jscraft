@@ -1,8 +1,7 @@
 import css from "./index.css";
 const movement = require("./movement");
-const { Perlin } = require("./vendor/perlin");
-const { render } = require("./renderEngine");
-// console.log(cal culateMovement);
+const Perlin = require("./vendor/perlin");
+const render = require("./renderEngine");
 
 function dlog(msg) {
   let debounceLogging = false;
@@ -175,6 +174,6 @@ const game = {
   genMapDataType();
   generateLand();
   generateTextures();
-  movement.init();
+  movement.init(game.player, game.map);
   setInterval(clock, 1000 / 100);
 })();

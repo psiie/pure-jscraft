@@ -2,7 +2,7 @@
 // a simple interface. Sorry! -wwwtyro
 // https://github.com/wwwtyro/perlin.js
 
-function Perlin(seed) {
+module.exports = function Perlin(seed) {
   // Alea random number generator.
   //----------------------------------------------------------------------------//
 
@@ -493,8 +493,4 @@ function Perlin(seed) {
   this.noise = function(x, y, z) {
     return 0.5 * noise.noise(x, y, z) + 0.5;
   };
-}
-
-module.exports = {
-  Perlin: Perlin
 };
