@@ -2,12 +2,15 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: "index.html",
   filename: "index.html",
   inject: "body"
 });
+
+const minifyOpts = {};
 
 const config = {
   context: path.resolve(__dirname, "src"),
@@ -37,7 +40,8 @@ const config = {
     ]
   },
   plugins: [
-    HtmlWebpackPluginConfig
+    HtmlWebpackPluginConfig,
+    new MinifyPlugin(minifyOpts)
     // new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false })
   ]
 };
