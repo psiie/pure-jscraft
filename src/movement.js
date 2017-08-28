@@ -1,25 +1,31 @@
-module.exports = {
-  calculateMovement: (() => {
-    function calculateMovement() {
-      if (keyState.forward) {
-        player.x += Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-        player.y -= Math.sin(player.pitch) / 8;
-        player.z += Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
-      } else if (keyState.backward) {
-        player.x -= Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-        player.y += Math.sin(player.pitch) / 8;
-        player.z -= Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
-      }
+const keyState = {
+  forward: false,
+  backward: false,
+  strafeLeft: false,
+  strafeRight: false
+};
 
-      if (keyState.strafeLeft) {
-        player.x += Math.sin(player.yaw - Math.PI / 2) / 8;
-        player.z += Math.cos(player.yaw - Math.PI / 2) / 8;
-      } else if (keyState.strafeRight) {
-        player.x -= Math.sin(player.yaw - Math.PI / 2) / 8;
-        player.z -= Math.cos(player.yaw - Math.PI / 2) / 8;
-      }
+module.exports = {
+  calculateMovement: player => {
+    if (keyState.forward) {
+      player.x += Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
+      player.y -= Math.sin(player.pitch) / 8;
+      player.z += Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
+    } else if (keyState.backward) {
+      player.x -= Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
+      player.y += Math.sin(player.pitch) / 8;
+      player.z -= Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
     }
 
+    if (keyState.strafeLeft) {
+      player.x += Math.sin(player.yaw - Math.PI / 2) / 8;
+      player.z += Math.cos(player.yaw - Math.PI / 2) / 8;
+    } else if (keyState.strafeRight) {
+      player.x -= Math.sin(player.yaw - Math.PI / 2) / 8;
+      player.z -= Math.cos(player.yaw - Math.PI / 2) / 8;
+    }
+  },
+  init: () => {
     function changeCallback(e) {
       var canvas = document.getElementById("game");
       const havePointer =
@@ -46,34 +52,16 @@ module.exports = {
       if (player.pitch > Math.PI / 2) player.pitch = Math.PI / 2;
     }
 
-    const keyState = {
-      forward: false,
-      backward: false,
-      strafeLeft: false,
-      strafeRight: false
-    };
-
-    document.addEventListener("pointerlockchange", changeCallback, false);
-    document.addEventListener("mozpointerlockchange", changeCallback, false);
-    document.addEventListener("webkitpointerlockchange", changeCallback, false);
-
-    document.getElementById("game").addEventListener("click", function() {
+    function captureMouseCB() {
       var canvas = document.getElementById("game");
       canvas.requestPointerLock =
         canvas.requestPointerLock ||
         canvas.mozRequestPointerLock ||
         canvas.webkitRequestPointerLock;
       canvas.requestPointerLock();
-    });
+    }
 
-    document.addEventListener("keydown", event => {
-      // console.log(player.x | 0, player.y | 0, player.z | 0);
-      // console.log(
-      //   player.yaw,
-      //   Math.sin(player.yaw),
-      //   Math.cos(player.yaw),
-      //   Math.sin(player.pitch)
-      // );
+    function keyDownCB(event) {
       switch (event.keyCode) {
         case 65:
           keyState.strafeLeft = true;
@@ -88,9 +76,9 @@ module.exports = {
           keyState.backward = true;
           break;
       }
-    });
+    }
 
-    document.addEventListener("keyup", event => {
+    function keyUpCB(event) {
       switch (event.keyCode) {
         case 65:
           keyState.strafeLeft = false;
@@ -105,27 +93,18 @@ module.exports = {
           keyState.backward = false;
           break;
       }
-    });
+    }
 
-    document.addEventListener("click", event => {
+    function mouseClickCB(event) {
       if (event.button === 0) {
-        // console.log(player.x, player.y, player.z);
-        // console.log(Math.sin(playerPitch), Math.sin(player.yaw));
-
         const findSelectedBlock = function() {
           let rayX = player.x;
           let rayY = player.y;
           let rayZ = player.z;
-          // let rayPitch = player.pitch;
-          // let rayYaw = player.yaw;
-          // console.log(rayPitch, rayYaw);
-          // console.log(rayX | 0, rayY | 0, rayZ | 0);
           for (var i = 0; i < 6 * 1000; i++) {
             rayX += Math.sin(player.yaw) * Math.cos(player.pitch) / 1000;
             rayY -= Math.sin(player.pitch) / 1000;
             rayZ += Math.cos(player.yaw) * Math.cos(player.pitch) / 1000;
-            // map[rayX | 0][rayY | 0][rayZ | 0] = 9;
-            // console.log(rayX, rayY, rayZ);
             if (map[rayX | 0][rayY | 0][rayZ | 0] > 0) {
               console.log("steps:", i);
               let currBlock = map[rayX | 0][rayY | 0][rayZ | 0];
@@ -136,10 +115,16 @@ module.exports = {
           }
           console.log(rayX | 0, rayY | 0, rayZ | 0);
         };
-
         findSelectedBlock();
       }
-    });
-    return calculateMovement;
-  })()
+    }
+
+    document.addEventListener("pointerlockchange", changeCallback, false);
+    document.addEventListener("mozpointerlockchange", changeCallback, false);
+    document.addEventListener("webkitpointerlockchange", changeCallback, false);
+    document.getElementById("game").addEventListener("click", captureMouseCB);
+    document.addEventListener("keydown", keyDownCB);
+    document.addEventListener("keyup", keyUpCB);
+    document.addEventListener("click", mouseClickCB);
+  }
 };
