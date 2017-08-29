@@ -136,6 +136,7 @@ const game = {
   function clock() {
     // console.log(game.player.x | 0, game.player.y | 0, game.player.z | 0);
     movement.applyGravity(game.player, game.map);
+    // movement.applyJump(game.player, game.map);
     movement.calculateMovement(game.player);
     const renderOpts = {
       map: game.map,
