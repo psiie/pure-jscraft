@@ -1,4 +1,4 @@
-const { BLOCKS, PLAYER_HEIGHT } = require("./constants");
+const { BLOCKS, PLAYER_HEIGHT, GRAVITY } = require("./constants");
 
 const keyState = {
   forward: false,
@@ -21,7 +21,7 @@ function debounceLog(msg) {
 
 module.exports = {
   applyGravity: (player, map) => {
-    console.log(player.velocity);
+    // console.log(player.velocity);
     const x = Math.floor(player.x);
     const y1 = Math.floor(player.y + PLAYER_HEIGHT + player.velocity);
     const y2 = Math.floor(player.y - PLAYER_HEIGHT + player.velocity);
@@ -34,77 +34,40 @@ module.exports = {
       // can still fall
       if (feet === BLOCKS.AIR) {
         player.y += player.velocity;
-        player.velocity *= 1.025;
+        player.velocity *= GRAVITY.CONSTANT;
         // done falling
       } else {
         player.velocity = 0;
       }
       // need to start falling
     } else if (player.velocity === 0 && feet === BLOCKS.AIR) {
-      player.velocity = 0.2;
+      player.velocity = GRAVITY.START_VELOCITY;
       // jumping
     } else if (player.velocity < 0) {
-      if (player.velocity.toFixed(3) > -0.005) player.velocity = 0.3;
+      // Float division fix
+      if (player.velocity.toFixed(3) > -0.005)
+        player.velocity = GRAVITY.START_VELOCITY;
+      // Only jump if headspace is clear
       if (head === BLOCKS.AIR) {
         player.y += player.velocity;
-        player.velocity /= 2.5;
+        player.velocity /= GRAVITY.JUMP_DECAY;
       }
     }
-
-    if (
-      keyState.jump
-      // player.velocity === 0 &&
-      // feet !== BLOCKS.AIR &&
-      // head === BLOCKS.AIR
-    ) {
+    if (keyState.jump) {
       keyState.jump = false;
-      console.log("INSIDE");
       player.velocity = -1.8;
     }
-    // if (keyState.jump) {
-    //   const yHead = Math.floor(player.y + player.velocity);
-    //   const futureUpPosition = map[x][yHead][z];
-    //   if (futureUpPosition === BLOCKS.AIR) {
-    //     keyState.jump = false;
-    //     player.velocity = -6.0;
-    //   }
-    // }
-
-    // if (futurePosition === BLOCKS.AIR) {
-    //   player.y += player.velocity;
-    //   if (player.velocity < 3.0 && player.velocity > 0)
-    //     player.velocity *= 1.025;
-    //   else if (player.velocity.toFixed(2) < 0) player.velocity /= 1.5;
-    //   // if (player.velocity.toFixed(2) === 0) player.velocity = 0.1;
-    // } else if (player.velocity) {
-    //   player.velocity = 0;
-    // }
-  },
-
-  applyJump: (player, map) => {
-    // if (!keyState.jump) return;
-    // const x = Math.floor(player.x);
-    // const y = Math.floor(player.y + player.velocity);
-    // const z = Math.floor(player.z);
-    // const futurePosition = map[x][y][z];
-    // if (futurePosition === BLOCKS.AIR) {
-    //   player.y -= player.velocity;
-    //   // if (player.velocity < 3.0) player.velocity /= 1.025;
-    //   // if (player.velocity === 0) player.velocity = 0.1;
-    // } else if (player.velocity) {
-    //   player.velocity = 0;
-    // }
   },
 
   calculateMovement: player => {
     if (keyState.forward) {
       player.x += Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      // player.y -= Math.sin(player.pitch) / 8;
       player.z += Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
+      // player.y -= Math.sin(player.pitch) / 8;
     } else if (keyState.backward) {
       player.x -= Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      // player.y += Math.sin(player.pitch) / 8;
       player.z -= Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
+      // player.y += Math.sin(player.pitch) / 8;
     }
 
     if (keyState.strafeLeft) {
