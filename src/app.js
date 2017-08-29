@@ -3,20 +3,6 @@ const movement = require("./movement");
 const Perlin = require("./vendor/perlin");
 const render = require("./renderEngine");
 
-function dlog(msg) {
-  let debounceLogging = false;
-  function debounceLog(msg) {
-    if (debounceLogging === false) {
-      debounceLogging = true;
-      console.log(msg);
-      setTimeout(function() {
-        debounceLogging = false;
-      }, 500);
-    }
-  }
-  debounceLog(msg);
-}
-
 const game = {
   width: 320,
   height: 240,
@@ -28,6 +14,7 @@ const game = {
     x: 32.5,
     y: 32.5,
     z: 32.5,
+    velocity: 0,
     pitch: Math.cos(4.6),
     yaw: Math.PI / 2
   }
@@ -147,6 +134,8 @@ const game = {
   }
 
   function clock() {
+    // console.log(game.player.x | 0, game.player.y | 0, game.player.z | 0);
+    movement.applyGravity(game.player, game.map);
     movement.calculateMovement(game.player);
     const renderOpts = {
       map: game.map,

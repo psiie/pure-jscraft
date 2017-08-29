@@ -1,3 +1,17 @@
+function dlog(msg) {
+  let debounceLogging = false;
+  function debounceLog(msg) {
+    if (debounceLogging === false) {
+      debounceLogging = true;
+      console.log(msg);
+      setTimeout(function() {
+        debounceLogging = false;
+      }, 500);
+    }
+  }
+  debounceLog(msg);
+}
+
 module.exports = function render({
   map,
   texmap,
@@ -19,6 +33,9 @@ module.exports = function render({
         let b = (col & 0xff) * brightness * fogDistance / (255 * 255);
 
         // blue fog effect
+        // r += (1 - fogDistance / 210) * 144;
+        // g += (1 - fogDistance / 210) * 238;
+        // b += (1 - fogDistance / 210) * 255;
         r += (1 - fogDistance / 210) * 144;
         g += (1 - fogDistance / 210) * 238;
         b += (1 - fogDistance / 210) * 255;
@@ -50,7 +67,7 @@ module.exports = function render({
       let fogDistance = 0;
 
       // render distance
-      let renderDistance = 32;
+      let renderDistance = 32; // standard 32
 
       // Ray cast for each dimension
       for (let dimension = 0; dimension < 3; dimension++) {
@@ -106,8 +123,10 @@ module.exports = function render({
             const cc = texmap[u + v * 16 + texture * 256 * 3];
             if (cc > 0) {
               col = cc;
-              fogDistance = 255 - ((distance / 32 * 255) | 0);
-              // fogDistance = 255 - ((distance / 32 * 0) | 0);
+              // fogDistance = 255 - ((distance / 32 * 0) | 0); // no fog
+              // fogDistance = 255 - ((distance / 32 * 255) | 0); // standard
+              fogDistance = (255 - ((distance / 32 * 255) | 0)) * 4; // partial fog
+              if (fogDistance > 255) fogDistance = 255;
               brightness = 255 * (255 - (dimension + 2) % 3 * 50) / 255;
               renderDistance = distance;
             }

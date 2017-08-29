@@ -10,8 +10,6 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   inject: "body"
 });
 
-const minifyOpts = {};
-
 const config = {
   context: path.resolve(__dirname, "src"),
   entry: "./app.js",
@@ -40,8 +38,8 @@ const config = {
     ]
   },
   plugins: [
-    HtmlWebpackPluginConfig,
-    new MinifyPlugin(minifyOpts)
+    HtmlWebpackPluginConfig
+    // new MinifyPlugin({})
     // new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false })
   ]
 };

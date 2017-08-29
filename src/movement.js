@@ -1,3 +1,5 @@
+const { BLOCKS, PLAYER_HEIGHT } = require("./constants");
+
 const keyState = {
   forward: false,
   backward: false,
@@ -5,15 +7,40 @@ const keyState = {
   strafeRight: false
 };
 
+let debounceLogging = false;
+function debounceLog(msg) {
+  if (debounceLogging === false) {
+    debounceLogging = true;
+    console.log(msg);
+    setTimeout(function() {
+      debounceLogging = false;
+    }, 500);
+  }
+}
+
 module.exports = {
+  applyGravity: (player, map) => {
+    const x = Math.floor(player.x);
+    const y = Math.floor(player.y + PLAYER_HEIGHT + player.velocity);
+    const z = Math.floor(player.z);
+    const futurePosition = map[x][y][z];
+    if (futurePosition === BLOCKS.AIR) {
+      player.y += player.velocity;
+      if (player.velocity < 3.0) player.velocity *= 1.025;
+      if (player.velocity === 0) player.velocity = 0.1;
+    } else {
+      if (player.velocity) player.velocity = 0;
+    }
+  },
+
   calculateMovement: player => {
     if (keyState.forward) {
       player.x += Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      player.y -= Math.sin(player.pitch) / 8;
+      // player.y -= Math.sin(player.pitch) / 8;
       player.z += Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
     } else if (keyState.backward) {
       player.x -= Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      player.y += Math.sin(player.pitch) / 8;
+      // player.y += Math.sin(player.pitch) / 8;
       player.z -= Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
     }
 
@@ -106,14 +133,12 @@ module.exports = {
             rayY -= Math.sin(player.pitch) / 1000;
             rayZ += Math.cos(player.yaw) * Math.cos(player.pitch) / 1000;
             if (map[rayX | 0][rayY | 0][rayZ | 0] > 0) {
-              console.log("steps:", i);
               let currBlock = map[rayX | 0][rayY | 0][rayZ | 0];
               currBlock = (currBlock + 1) % 16;
               map[rayX | 0][rayY | 0][rayZ | 0] = currBlock || 1;
               break;
             }
           }
-          console.log(rayX | 0, rayY | 0, rayZ | 0);
         };
         findSelectedBlock();
       }
