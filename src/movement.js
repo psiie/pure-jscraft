@@ -34,7 +34,7 @@ module.exports = {
       // can still fall
       if (feet === BLOCKS.AIR) {
         player.y += player.velocity;
-        player.velocity *= GRAVITY.CONSTANT;
+        if (player.velocity < 2.5) player.velocity *= GRAVITY.CONSTANT;
         // done falling
       } else {
         player.velocity = 0;
@@ -55,19 +55,42 @@ module.exports = {
     }
     if (keyState.jump) {
       keyState.jump = false;
-      player.velocity = -1.8;
+      player.velocity = GRAVITY.JUMP_VELOCITY;
     }
   },
 
-  calculateMovement: player => {
-    if (keyState.forward) {
-      player.x += Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      player.z += Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
-      // player.y -= Math.sin(player.pitch) / 8;
-    } else if (keyState.backward) {
-      player.x -= Math.sin(player.yaw) * Math.cos(player.pitch) / 8;
-      player.z -= Math.cos(player.yaw) * Math.cos(player.pitch) / 8;
-      // player.y += Math.sin(player.pitch) / 8;
+  calculateMovement: (player, map) => {
+    function collisionCheck(inBlock, x, y, z) {
+      if (inBlock === 0) {
+        player.x = x;
+        player.z = z;
+      } else {
+        const inBlockX = map[x | 0][y | 0][player.z | 0];
+        const inBlockZ = map[player.x | 0][y | 0][player.z | 0];
+        if (inBlockX === 0) player.x = x;
+        else if (inBlockZ === 0) player.z = z;
+      }
+    }
+
+    // detect collision via cube instead of exact coord.
+    if (
+      keyState.forward ||
+      keyState.backward ||
+      keyState.strafeLeft ||
+      keyState.strafeRight
+    ) {
+      let x = player.x;
+      let y = player.y + PLAYER_HEIGHT;
+      let z = player.z;
+      if (keyState.forward) {
+        x += Math.sin(player.yaw) / 8;
+        z += Math.cos(player.yaw) / 8;
+      } else if (keyState.backward) {
+        x -= Math.sin(player.yaw) / 8;
+        z -= Math.cos(player.yaw) / 8;
+      }
+      let inBlock = map[x | 0][y | 0][z | 0];
+      collisionCheck(inBlock, x, y, z);
     }
 
     if (keyState.strafeLeft) {
