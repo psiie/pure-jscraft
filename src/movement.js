@@ -60,13 +60,14 @@ module.exports = {
   },
 
   calculateMovement: (player, map) => {
-    function collisionCheck(inBlock, x, y, z) {
+    function collisionCheck(x, y, z) {
+      const inBlock = map[x | 0][y | 0][z | 0];
       if (inBlock === 0) {
         player.x = x;
         player.z = z;
       } else {
         const inBlockX = map[x | 0][y | 0][player.z | 0];
-        const inBlockZ = map[player.x | 0][y | 0][player.z | 0];
+        const inBlockZ = map[player.x | 0][y | 0][z | 0];
         if (inBlockX === 0) player.x = x;
         else if (inBlockZ === 0) player.z = z;
       }
@@ -89,16 +90,14 @@ module.exports = {
         x -= Math.sin(player.yaw) / 8;
         z -= Math.cos(player.yaw) / 8;
       }
-      let inBlock = map[x | 0][y | 0][z | 0];
-      collisionCheck(inBlock, x, y, z);
-    }
-
-    if (keyState.strafeLeft) {
-      player.x += Math.sin(player.yaw - Math.PI / 2) / 8;
-      player.z += Math.cos(player.yaw - Math.PI / 2) / 8;
-    } else if (keyState.strafeRight) {
-      player.x -= Math.sin(player.yaw - Math.PI / 2) / 8;
-      player.z -= Math.cos(player.yaw - Math.PI / 2) / 8;
+      if (keyState.strafeLeft) {
+        x += Math.sin(player.yaw - Math.PI / 2) / 8;
+        z += Math.cos(player.yaw - Math.PI / 2) / 8;
+      } else if (keyState.strafeRight) {
+        x -= Math.sin(player.yaw - Math.PI / 2) / 8;
+        z -= Math.cos(player.yaw - Math.PI / 2) / 8;
+      }
+      collisionCheck(x, y, z);
     }
   },
   init: (player, map) => {
