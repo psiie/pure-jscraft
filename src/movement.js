@@ -31,17 +31,21 @@ module.exports = {
 
     // Already falling
     if (player.velocity > 0) {
+      console.log(player.velocity);
       // can still fall
       if (feet === BLOCKS.AIR) {
         player.y += player.velocity;
-        if (player.velocity < 2.5) player.velocity *= GRAVITY.CONSTANT;
+        if (player.velocity < 0.5) {
+          const inverse = (0.5 - player.velocity) / GRAVITY.CONSTANT;
+          player.velocity += inverse / 4;
+        }
         // done falling
       } else {
         player.velocity = 0;
       }
       // need to start falling
     } else if (player.velocity === 0 && feet === BLOCKS.AIR) {
-      player.velocity = GRAVITY.START_VELOCITY;
+      player.velocity = GRAVITY.START_VELOCITY * 4;
       // jumping
     } else if (player.velocity < 0) {
       // Float division fix
