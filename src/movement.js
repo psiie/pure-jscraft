@@ -22,7 +22,6 @@ function debounceLog(msg) {
 
 module.exports = {
   applyGravity: (player, map) => {
-    // console.log(player.velocity);
     // const y2 = player.y - PLAYER_HEIGHT + player.velocity;
     const x = player.x;
     const y = player.y + 2;
@@ -31,13 +30,10 @@ module.exports = {
 
     const jumpStr = 0.4;
     const jumpStrAmplifier = 0.005;
+    // console.log(player.velocity);
     // const head = map[x | 0][y2 | 0][z | 0];
-    // console.log(x, y, z);
-    let finalFeet;
-    // falling
-    console.log(player.velocity);
+
     if (keyState.jump && feet > 0) {
-      console.log("jumped");
       player.velocity = -jumpStr;
       keyState.jumping = true;
     }
@@ -47,17 +43,23 @@ module.exports = {
         player.velocity = 0;
         keyState.jumping = false;
       }
-      player.y += player.velocity;
+
+      if (map[x | 0][(player.y + player.velocity) | 0][z | 0] === 0) {
+        player.y += player.velocity; // check that next position is safe
+      }
     }
 
-    // guard - Either jumping (above) or falling (below)
-    if (keyState.jumping === true) return;
+    if (keyState.jumping === true) return; // guard - Either jumping (above) or falling (below)
 
-    // jumping
     if (feet === 0) {
-      if (player.velocity < 3) player.velocity += 0.1;
-      player.y += 0.1 * player.velocity;
+      // jumping
+      if (player.velocity < 3) player.velocity += 0.1; // if not at terminal velocity, increase velocity
+      if (map[x | 0][(player.y + 0.1 * player.velocity) | 0][z | 0] === 0) {
+        // check that next position is safe
+        player.y += 0.1 * player.velocity;
+      }
     } else {
+      // we hit the ground. stop velocity
       player.velocity = 0;
     }
   },
