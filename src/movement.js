@@ -5,7 +5,8 @@ const keyState = {
   backward: false,
   strafeLeft: false,
   strafeRight: false,
-  jump: false
+  jump: false,
+  jumping: false
 };
 
 let debounceLogging = false;
@@ -22,44 +23,42 @@ function debounceLog(msg) {
 module.exports = {
   applyGravity: (player, map) => {
     // console.log(player.velocity);
-    const x = Math.floor(player.x);
-    const y1 = Math.floor(player.y + PLAYER_HEIGHT + player.velocity);
-    const y2 = Math.floor(player.y - PLAYER_HEIGHT + player.velocity);
-    const z = Math.floor(player.z);
-    const feet = map[x | 0][y1 | 0][z | 0];
-    const head = map[x | 0][y2 | 0][z | 0];
+    // const y2 = player.y - PLAYER_HEIGHT + player.velocity;
+    const x = player.x;
+    const y = player.y + 2;
+    const z = player.z;
+    const feet = map[x | 0][y | 0][z | 0];
 
-    // Already falling
-    if (player.velocity > 0) {
-      console.log(player.velocity);
-      // can still fall
-      if (feet === BLOCKS.AIR) {
-        player.y += player.velocity;
-        if (player.velocity < 0.5) {
-          const inverse = (0.5 - player.velocity) / GRAVITY.CONSTANT;
-          player.velocity += inverse / 4;
-        }
-        // done falling
-      } else {
-        player.velocity = 0;
-      }
-      // need to start falling
-    } else if (player.velocity === 0 && feet === BLOCKS.AIR) {
-      player.velocity = GRAVITY.START_VELOCITY * 4;
-      // jumping
-    } else if (player.velocity < 0) {
-      // Float division fix
-      if (player.velocity.toFixed(3) > -0.005)
-        player.velocity = GRAVITY.START_VELOCITY;
-      // Only jump if headspace is clear
-      if (head === BLOCKS.AIR) {
-        player.y += player.velocity;
-        player.velocity /= GRAVITY.JUMP_DECAY;
-      }
+    const jumpStr = 0.4;
+    const jumpStrAmplifier = 0.005;
+    // const head = map[x | 0][y2 | 0][z | 0];
+    // console.log(x, y, z);
+    let finalFeet;
+    // falling
+    console.log(player.velocity);
+    if (keyState.jump && feet > 0) {
+      console.log("jumped");
+      player.velocity = -jumpStr;
+      keyState.jumping = true;
     }
-    if (keyState.jump) {
-      keyState.jump = false;
-      player.velocity = GRAVITY.JUMP_VELOCITY;
+    if (keyState.jumping) {
+      player.velocity += player.velocity + (jumpStr + jumpStrAmplifier);
+      if (player.velocity > 0) {
+        player.velocity = 0;
+        keyState.jumping = false;
+      }
+      player.y += player.velocity;
+    }
+
+    // guard - Either jumping (above) or falling (below)
+    if (keyState.jumping === true) return;
+
+    // jumping
+    if (feet === 0) {
+      if (player.velocity < 3) player.velocity += 0.1;
+      player.y += 0.1 * player.velocity;
+    } else {
+      player.velocity = 0;
     }
   },
 
@@ -173,6 +172,9 @@ module.exports = {
           break;
         case 83:
           keyState.backward = false;
+          break;
+        case 32:
+          keyState.jump = false;
           break;
       }
     }

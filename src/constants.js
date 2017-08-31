@@ -4,9 +4,9 @@ module.exports = {
   },
   PLAYER_HEIGHT: 1.8,
   GRAVITY: {
-    CONSTANT: 2, // 1.025
+    CONSTANT: 4, // 1.025
     JUMP_DECAY: 2.5,
-    START_VELOCITY: 0.2,
-    JUMP_VELOCITY: -1
+    START_VELOCITY: 0.1,
+    JUMP_VELOCITY: -0.8
   }
 };
