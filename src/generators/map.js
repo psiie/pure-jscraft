@@ -3,6 +3,7 @@ const pn = new Perlin("fjlakj3kn4kj9uvd98vf");
 
 module.exports = (map) => {
   const heightMap = new Array(64);
+  
   // generate height-map
   for (let x = 0; x < 64; x++) {
     heightMap[x] = new Array(64);
@@ -32,5 +33,6 @@ module.exports = (map) => {
       }
     }
   }
+
   return map;
 }

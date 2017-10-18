@@ -1,10 +1,10 @@
 module.exports = () => {
-  var texmap;
-  for (var i = 1; i < 16; i++) {
-    var br = 255 - ((Math.random() * 96) | 0);
-    for (var y = 0; y < 16 * 3; y++) {
-      for (var x = 0; x < 16; x++) {
-        var color = 0x966c4a;
+  const texmap = new Array(16 * 16 * 3 * 16);
+  for (let i = 1; i < 16; i++) {
+    let br = 255 - ((Math.random() * 96) | 0);
+    for (let y = 0; y < 16 * 3; y++) {
+      for (let x = 0; x < 16; x++) {
+        let color = 0x966c4a;
         if (i == 4) color = 0x7f7f7f;
         if (i != 4 || ((Math.random() * 3) | 0) === 0) {
           br = 255 - ((Math.random() * 96) | 0);
@@ -18,8 +18,8 @@ module.exports = () => {
           color = 0x675231;
           if (x > 0 && x < 15 && ((y > 0 && y < 15) || (y > 32 && y < 47))) {
             color = 0xbc9862;
-            var xd = x - 7;
-            var yd = (y & 15) - 7;
+            let xd = x - 7;
+            let yd = (y & 15) - 7;
             if (xd < 0) xd = 1 - xd;
             if (yd < 0) yd = 1 - yd;
             if (yd > xd) xd = yd;
@@ -39,7 +39,7 @@ module.exports = () => {
         if (i == 9) {
           color = 0x4040ff;
         }
-        var brr = br;
+        let brr = br;
         if (y >= 32) brr /= 2;
 
         if (i == 8) {
@@ -50,12 +50,14 @@ module.exports = () => {
           }
         }
 
-        var col =
+        let col =
           ((((color >> 16) & 0xff) * brr / 255) << 16) |
           ((((color >> 8) & 0xff) * brr / 255) << 8) |
           ((color & 0xff) * brr / 255);
-        game.texmap[x + y * 16 + i * 256 * 3] = col;
+        texmap[x + y * 16 + i * 256 * 3] = col;
       }
     }
   }
+
+  return texmap;
 }
