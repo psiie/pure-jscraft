@@ -1,4 +1,4 @@
-import css from "./index.css";
+import css from "./webpack/index.css";
 const movement = require("./movement");
 const render = require("./renderEngine");
 const generators = require('./generators');

@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MinifyPlugin = require("babel-minify-webpack-plugin");
 
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: "index.html",
+  template: "webpack/index.html",
   filename: "index.html",
   inject: "body"
 });
