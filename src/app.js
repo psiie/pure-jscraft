@@ -1,7 +1,7 @@
 import css from "./index.css";
 const movement = require("./movement");
-const Perlin = require("./vendor/perlin");
 const render = require("./renderEngine");
+const generators = require('./generators');
 
 const game = {
   width: 320,
@@ -20,28 +20,7 @@ const game = {
   }
 };
 
-(function init() {
-  const pn = new Perlin("fjlakj3kn4kj9uvd98vf");
-  const heightMap = new Array(64);
-
-  function genMapDataType() {
-    /* using JSON string/parse for deep cloning. Array.slice(0) doesn't 
-    seem to play well. It ends up linking */
-    const dim1 = [];
-    for (let i = 0; i < 64; i++)
-      dim1.push(0);
-
-    const dim2 = dim1.slice();
-    for (let i = 0; i < 64; i++)
-      dim2[i] = JSON.parse(JSON.stringify(dim1));
-
-    const dim3 = dim2.slice();
-    for (let i = 0; i < 64; i++)
-      dim3[i] = JSON.parse(JSON.stringify(dim2));
-
-    game.map = dim3;
-  }
-
+(() => {
   function generateTextures() {
     for (var i = 1; i < 16; i++) {
       var br = 255 - ((Math.random() * 96) | 0);
@@ -103,36 +82,6 @@ const game = {
     }
   }
 
-  function generateLand() {
-    // generate height game.map
-    for (let x = 0; x < 64; x++) {
-      heightMap[x] = new Array(64);
-      for (let z = 0; z < 64; z++) {
-        let height = pn.noise(x / 15, z / 15, Math.PI);
-        height *= 32;
-        height += 32;
-        height = Math.floor(height);
-        heightMap[x][z] = height;
-      }
-    }
-
-    // game.map height game.map to game.map
-    for (let x = 0; x < 64; x++) {
-      for (let z = 0; z < 64; z++) {
-        let mHeight = heightMap[x][z];
-        game.map[x][mHeight][z] = 1;
-
-        // water fill 9
-        for (let y = mHeight - 1; y > 50; y--)
-          game.map[x][y][z] = 9;
-
-        // underground fill
-        for (let y = mHeight + 1; y < 64; y++)
-          game.map[x][y][z] = 4;
-      }
-    }
-  }
-
   function clock() {
     // console.log(game.player.x | 0, game.player.y | 0, game.player.z | 0);
     movement.applyGravity(game.player, game.map);
@@ -160,8 +109,8 @@ const game = {
     game.pixels.data[i * 4 + 3] = 255;
   }
 
-  genMapDataType();
-  generateLand();
+  game.map = generators.mapDataType();
+  game.map = generators.map(game.map);
   generateTextures();
   movement.init(game.player, game.map);
   setInterval(clock, 1000 / 100);

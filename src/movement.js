@@ -22,23 +22,18 @@ function debounceLog(msg) {
 
 module.exports = {
   applyGravity: (player, map) => {
-    // const y2 = player.y - PLAYER_HEIGHT + player.velocity;
     const x = player.x;
     const y = player.y + 2;
     const z = player.z;
     const feet = map[x | 0][y | 0][z | 0];
 
-    const jumpStr = 0.4;
-    const jumpStrAmplifier = 0.005;
-    // console.log(player.velocity);
-    // const head = map[x | 0][y2 | 0][z | 0];
-
     if (keyState.jump && feet > 0) {
-      player.velocity = -jumpStr;
+      player.velocity = -GRAVITY.JUMP_STR;
       keyState.jumping = true;
     }
     if (keyState.jumping) {
-      player.velocity += player.velocity + (jumpStr + jumpStrAmplifier);
+      player.velocity +=
+        player.velocity + (GRAVITY.JUMP_STR + GRAVITY.JUMP_STR_AMP);
       if (player.velocity > 0) {
         player.velocity = 0;
         keyState.jumping = false;
