@@ -1,53 +1,42 @@
 import css from "./webpack/index.css";
 const movement = require("./movement");
-const render = require("./renderEngine");
 const generators = require('./generators');
+const engine = require('./engine');
+const CONST = require("./constants");
 
+// Setup the game object. This will be the 'source of thruth' throughout the game
 const game = {
-  width: 320,
-  height: 240,
+  width: CONST.SETTINGS.RESOLUTION.WIDTH,
+  height: CONST.SETTINGS.RESOLUTION.HEIGHT,
+  map: generators.map(),
+  texmap: generators.textures(),
   ctx: document.getElementById("game").getContext("2d"),
   player: {
-    x: 32.5,
-    y: 32.5,
-    z: 32.5,
+    x: CONST.SETTINGS.START.X,
+    y: CONST.SETTINGS.START.Y,
+    z: CONST.SETTINGS.START.Z,
     velocity: 0,
     pitch: Math.cos(4.6),
-    yaw: Math.PI / 2
-  }
+    yaw: Math.PI / 2,
+  },
 };
 
-(() => {
-  function clock() {
-    // console.log(game.player.x | 0, game.player.y | 0, game.player.z | 0);
-    movement.applyGravity(game.player, game.map);
-    movement.calculateMovement(game.player, game.map);
-    const renderOpts = {
-      map: game.map,
-      texmap: game.texmap,
-      pixels: game.pixels,
-      w: game.width,
-      h: game.height,
-      playerX: game.player.x,
-      playerY: game.player.y,
-      playerZ: game.player.z,
-      playerYaw: game.player.yaw,
-      playerPitch: game.player.pitch
-    };
-    render(renderOpts);
-    game.ctx.putImageData(game.pixels, 0, 0);
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  // Resolution setup
+  const viewportWidth = game.width * CONST.SETTINGS.RESOLUTION.SCALE;
+  const viewportHeight = game.height * CONST.SETTINGS.RESOLUTION.SCALE;
+  const canvas = document.querySelector('#game');
+  canvas.width = CONST.SETTINGS.RESOLUTION.WIDTH;
+  canvas.height = CONST.SETTINGS.RESOLUTION.HEIGHT;
+  canvas.setAttribute('style', `width: ${viewportWidth}px; height: ${viewportHeight}px`);
 
+  // Canvas setup
   game.pixels = game.ctx.createImageData(game.width, game.height);
-
-  // Set Opacity for screen
-  for (let i = 0; i < game.width * game.height; i++) {
-    game.pixels.data[i * 4 + 3] = 255;
+  for (let i = 0; i < game.width * game.height; i++) { 
+    game.pixels.data[i * 4 + 3] = 255; // Set Opacity for screen
   }
-
-  game.map = generators.mapDataType();
-  game.map = generators.map(game.map);
-  game.texmap = generators.textures();
+  
+  // Game Bootstrap
   movement.init(game.player, game.map);
-  setInterval(clock, 1000 / 100);
-})();
+  engine.clock.init(game);
+});

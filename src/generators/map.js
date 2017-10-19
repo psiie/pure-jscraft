@@ -1,8 +1,10 @@
+const mapDataType = require('./mapDataType');
 const Perlin = require("../vendor/perlin");
 const pn = new Perlin("fjlakj3kn4kj9uvd98vf");
 
-module.exports = (map) => {
+module.exports = () => {
   const heightMap = new Array(64);
+  const map = mapDataType();
   
   // generate height-map
   for (let x = 0; x < 64; x++) {

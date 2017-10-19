@@ -5,8 +5,8 @@ canvas, img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: optimize-contrast;
     -ms-interpolation-mode: nearest-neighbor;
-    width:640px;
-    height:480px;
+    /* width:640px;
+    height:480px; */
 }
 .hidden {
   display: none;

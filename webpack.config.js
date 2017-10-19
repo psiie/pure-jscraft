@@ -38,8 +38,8 @@ const config = {
     ]
   },
   plugins: [
-    HtmlWebpackPluginConfig
-    // new MinifyPlugin({})
+    HtmlWebpackPluginConfig,
+    // new MinifyPlugin({}),
     // new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false })
   ]
 };

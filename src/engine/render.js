@@ -12,49 +12,36 @@ function dlog(msg) {
   debounceLog(msg);
 }
 
-module.exports = function render({
-  map,
-  texmap,
-  pixels,
-  w,
-  h,
-  playerX,
-  playerY,
-  playerZ,
-  playerYaw,
-  playerPitch
-}) {
-  for (let x = 0; x < w; x++) {
-    for (let y = 0; y < h; y++) {
-      function setPixelColor() {
+module.exports = ({ ctx, map, texmap, pixels, width, height, player }) => {
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      const setPixelColor = () => {
         // 144 238 255
         let r = ((col >> 16) & 0xff) * brightness * fogDistance / (255 * 255);
         let g = ((col >> 8) & 0xff) * brightness * fogDistance / (255 * 255);
         let b = (col & 0xff) * brightness * fogDistance / (255 * 255);
 
         // blue fog effect
-        // r += (1 - fogDistance / 210) * 144;
-        // g += (1 - fogDistance / 210) * 238;
-        // b += (1 - fogDistance / 210) * 255;
         r += (1 - fogDistance / 210) * 144;
         g += (1 - fogDistance / 210) * 238;
         b += (1 - fogDistance / 210) * 255;
 
         // Sky color 144 238 255
-        pixels.data[(x + y * w) * 4 + 0] = r || 144;
-        pixels.data[(x + y * w) * 4 + 1] = g || 238;
-        pixels.data[(x + y * w) * 4 + 2] = b || 255;
+        pixels.data[(x + y * width) * 4 + 0] = r || 144;
+        pixels.data[(x + y * width) * 4 + 1] = g || 238;
+        pixels.data[(x + y * width) * 4 + 2] = b || 255;
       }
+
       // calculate camera rotation
-      const yCos = Math.cos(playerPitch);
-      const ySin = Math.sin(playerPitch);
-      const xCos = Math.cos(playerYaw);
-      const xSin = Math.sin(playerYaw);
+      const yCos = Math.cos(player.pitch);
+      const ySin = Math.sin(player.pitch);
+      const xCos = Math.cos(player.yaw);
+      const xSin = Math.sin(player.yaw);
 
       // pixel maths
-      const worldyd = (y - h / 2) / h;
+      const worldyd = (y - height / 2) / height;
       const worldzd = 1;
-      const worldxd = (x - w / 2) / h;
+      const worldxd = (x - width / 2) / height;
       const worldyd_ = worldzd * yCos + worldyd * ySin;
 
       const rotxd = worldyd * yCos - worldzd * ySin;
@@ -83,15 +70,15 @@ module.exports = function render({
         const zd = rotzd * ll; // -pi-pi
 
         // initial is a block offset. where in the block the person is. 0-1
-        let initial = playerX - (playerX | 0);
-        if (dimension == 1) initial = playerY - (playerY | 0);
-        if (dimension == 2) initial = playerZ - (playerZ | 0);
+        let initial = player.x - (player.x | 0);
+        if (dimension == 1) initial = player.y - (player.y | 0);
+        if (dimension == 2) initial = player.z - (player.z | 0);
         if (dimLength > 0) initial = 1 - initial;
 
         /* where to start/stop rendering. Faces offset when wrong */
-        let xp = playerX + xd * initial;
-        let yp = playerY + yz * initial;
-        let zp = playerZ + zd * initial;
+        let xp = player.x + xd * initial;
+        let yp = player.y + yz * initial;
+        let zp = player.z + zd * initial;
 
         // faces go missing in certain cardinal directions when not subtracted
         if (dimLength < 0) {
@@ -140,4 +127,5 @@ module.exports = function render({
       setPixelColor();
     }
   }
+  ctx.putImageData(pixels, 0, 0);
 };

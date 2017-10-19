@@ -9,17 +9,6 @@ const keyState = {
   jumping: false
 };
 
-let debounceLogging = false;
-function debounceLog(msg) {
-  if (debounceLogging === false) {
-    debounceLogging = true;
-    console.log(msg);
-    setTimeout(function() {
-      debounceLogging = false;
-    }, 500);
-  }
-}
-
 module.exports = {
   applyGravity: (player, map) => {
     const x = player.x;
@@ -100,6 +89,7 @@ module.exports = {
       collisionCheck(x, y, z);
     }
   },
+  
   init: (player, map) => {
     function changeCallback(e) {
       var canvas = document.getElementById("game");
