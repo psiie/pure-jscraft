@@ -1,5 +1,21 @@
 module.exports = () => {
   const texmap = new Array(16 * 16 * 3 * 16);
+  // 0 = air - Do not consume this slot
+  // 1 = grass-topped dirt
+  // 2 = dirt - Do not consume this slot.
+  // // 3 = cobble
+  // 4 = stone
+  // 5 = brick-block
+  // // 6 = wood planks
+  // 7 = log
+  // 8 = leaves
+  // 9 = blue cloth
+  // // 10 = sponge – yellow replacement
+  // // 11 = red cloth
+  // // 12 = green block
+  // // 13 = sand
+  // // 14 = ore
+  // // 15 = glass
 
   for (let textureIndex = 1; textureIndex < 16; textureIndex++) {
     /* VarientA and VarientB are really just transparency values. But are great
@@ -29,6 +45,14 @@ module.exports = () => {
         }
 
         // 2 = dirt - Do not consume this slot.
+
+        // 3 - cobblestone
+        if (textureIndex == 3) {
+          color = 0x7f7f7f;
+          if ((Math.random() * 4) % 4 < 1) {
+            varientB = 128
+          }
+        }
 
         // 4 = stone
         if (textureIndex == 4) {

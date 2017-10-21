@@ -16,15 +16,15 @@ module.exports = ({ ctx, map, texmap, pixels, width, height, player }) => {
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
       const setPixelColor = () => {
-        // 144 238 255
-        let r = ((col >> 16) & 0xff) * brightness * fogDistance / (255 * 255);
-        let g = ((col >> 8) & 0xff) * brightness * fogDistance / (255 * 255);
-        let b = (col & 0xff) * brightness * fogDistance / (255 * 255);
+        // 144 238 255 // 256 * 256
+        let r = ((col >> 16) & 0xff) * brightness * fogDistance / (255 * 192);
+        let g = ((col >> 8) & 0xff) * brightness * fogDistance / (255 * 192);
+        let b = (col & 0xff) * brightness * fogDistance / (255 * 192);
 
         // blue fog effect
-        r += (1 - fogDistance / 210) * 144;
-        g += (1 - fogDistance / 210) * 238;
-        b += (1 - fogDistance / 210) * 255;
+        r += ((1 - fogDistance / 210) * 144) * Math.abs((fogDistance-210)/210);
+        g += ((1 - fogDistance / 210) * 238) * Math.abs((fogDistance-210)/210);
+        b += ((1 - fogDistance / 210) * 255) * Math.abs((fogDistance-210)/210);
 
         // Sky color 144 238 255
         pixels.data[(x + y * width) * 4 + 0] = r || 144;
