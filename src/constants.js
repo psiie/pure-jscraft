@@ -1,4 +1,4 @@
-module.exports = {
+const constants = {
   SETTINGS: {
     /* Width & Height to render the game at. Scale enlarges the size of the canvas
     by multiplying itself by WIDTH/HEIGHT. Essentially reducting the resolution.
@@ -26,6 +26,9 @@ module.exports = {
   PLAYER_HEIGHT: 1.8,
   GRAVITY: {
     JUMP_STR: 0.4,
-    JUMP_STR_AMP: 0.005
+    JUMP_STR_AMP: 0.0010
   }
 };
+
+window.constants = constants;
+module.exports = constants;

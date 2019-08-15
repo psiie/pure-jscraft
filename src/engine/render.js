@@ -1,17 +1,3 @@
-function dlog(msg) {
-  let debounceLogging = false;
-  function debounceLog(msg) {
-    if (debounceLogging === false) {
-      debounceLogging = true;
-      console.log(msg);
-      setTimeout(function() {
-        debounceLogging = false;
-      }, 500);
-    }
-  }
-  debounceLog(msg);
-}
-
 module.exports = ({ ctx, map, texmap, pixels, width, height, player }) => {
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {

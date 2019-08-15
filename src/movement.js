@@ -1,4 +1,18 @@
 const { BLOCKS, PLAYER_HEIGHT, GRAVITY } = require("./constants");
+// const dlog = require('./utils');
+let debounceLogging = false;
+function dlog(msg) {
+  function debounceLog(msg) {
+    if (debounceLogging === false) {
+      debounceLogging = true;
+      console.log(msg);
+      setTimeout(function() {
+        debounceLogging = false;
+      }, 500);
+    }
+  }
+  debounceLog(msg);
+}
 
 const keyState = {
   forward: false,
@@ -16,77 +30,78 @@ module.exports = {
     const z = player.z;
     const feet = map[x | 0][y | 0][z | 0];
 
+    // is standing. start jump
     if (keyState.jump && feet > 0) {
       player.velocity = -GRAVITY.JUMP_STR;
       keyState.jumping = true;
     }
+
+    // if ascending
     if (keyState.jumping) {
-      player.velocity +=
-        player.velocity + (GRAVITY.JUMP_STR + GRAVITY.JUMP_STR_AMP);
+      player.velocity += player.velocity + (GRAVITY.JUMP_STR + GRAVITY.JUMP_STR_AMP);
       if (player.velocity > 0) {
         player.velocity = 0;
         keyState.jumping = false;
       }
 
-      if (map[x | 0][(player.y + player.velocity) | 0][z | 0] === 0) {
-        player.y += player.velocity; // check that next position is safe
-      }
+      // check that next position is safe
+      const nextPosition = map[x | 0][(player.y + player.velocity) | 0][z | 0]; // calculate head
+      if (nextPosition === 0) player.y += player.velocity;
+      return;
     }
 
-    if (keyState.jumping === true) return; // guard - Either jumping (above) or falling (below)
-
+    // if decending (feet in air)
     if (feet === 0) {
-      // jumping
-      if (player.velocity < 3) player.velocity += 0.1; // if not at terminal velocity, increase velocity
-      if (map[x | 0][(player.y + 0.1 * player.velocity) | 0][z | 0] === 0) {
-        // check that next position is safe
-        player.y += 0.1 * player.velocity;
-      }
-    } else {
-      // we hit the ground. stop velocity
-      player.velocity = 0;
+      if (player.velocity < 3) player.velocity += 0.2; // if not at terminal velocity, increase velocity
+
+      // check that next position is safe
+      const nextY = player.y + (0.1 * player.velocity);
+      const nextPosition = map[x | 0][Math.ceil(nextY) + 1][z | 0]; // calculate feet
+      player.y = nextPosition === 0 ? nextY : nextY | 0;
+      return;
     }
+
+    // we hit the ground. stop velocity
+    player.velocity = 0;
   },
 
   calculateMovement: (player, map) => {
-    function collisionCheck(x, y, z) {
-      const inBlock = map[x | 0][y | 0][z | 0];
-      if (inBlock === 0) {
-        player.x = x;
-        player.z = z;
-      } else {
-        const inBlockX = map[x | 0][y | 0][player.z | 0];
-        const inBlockZ = map[player.x | 0][y | 0][z | 0];
-        if (inBlockX === 0) player.x = x;
-        else if (inBlockZ === 0) player.z = z;
-      }
+    if (
+      !keyState.forward &&
+      !keyState.backward &&
+      !keyState.strafeLeft &&
+      !keyState.strafeRight
+    ) return;
+    
+    let x = player.x;
+    let y = player.y + PLAYER_HEIGHT;
+    let z = player.z;
+    if (keyState.forward) {
+      x += Math.sin(player.yaw) / 8;
+      z += Math.cos(player.yaw) / 8;
+    } else if (keyState.backward) {
+      x -= Math.sin(player.yaw) / 8;
+      z -= Math.cos(player.yaw) / 8;
+    }
+    
+    if (keyState.strafeLeft) {
+      x += Math.sin(player.yaw - Math.PI / 2) / 8;
+      z += Math.cos(player.yaw - Math.PI / 2) / 8;
+    } else if (keyState.strafeRight) {
+      x -= Math.sin(player.yaw - Math.PI / 2) / 8;
+      z -= Math.cos(player.yaw - Math.PI / 2) / 8;
     }
 
     // detect collision via cube instead of exact coord.
-    if (
-      keyState.forward ||
-      keyState.backward ||
-      keyState.strafeLeft ||
-      keyState.strafeRight
-    ) {
-      let x = player.x;
-      let y = player.y + PLAYER_HEIGHT;
-      let z = player.z;
-      if (keyState.forward) {
-        x += Math.sin(player.yaw) / 8;
-        z += Math.cos(player.yaw) / 8;
-      } else if (keyState.backward) {
-        x -= Math.sin(player.yaw) / 8;
-        z -= Math.cos(player.yaw) / 8;
-      }
-      if (keyState.strafeLeft) {
-        x += Math.sin(player.yaw - Math.PI / 2) / 8;
-        z += Math.cos(player.yaw - Math.PI / 2) / 8;
-      } else if (keyState.strafeRight) {
-        x -= Math.sin(player.yaw - Math.PI / 2) / 8;
-        z -= Math.cos(player.yaw - Math.PI / 2) / 8;
-      }
-      collisionCheck(x, y, z);
+    const inBlock = map[x | 0][y | 0][z | 0];
+    if (inBlock === 0) {
+      player.x = x;
+      player.z = z;
+    } else {
+      const inBlockX = map[x | 0][y | 0][player.z | 0];
+      const inBlockZ = map[player.x | 0][y | 0][z | 0];
+      if (inBlockX === 0) player.x = x;
+      else if (inBlockZ === 0) player.z = z;
     }
   },
   
